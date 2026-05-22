@@ -4,122 +4,182 @@
 
 import streamlit as st
 import pandas as pd
-from src.pipeline import (
-    full_pipeline
-)
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-from src.clustering import (
-    apply_dbscan
-)
+from src.pipeline import full_pipeline
+from src.clustering import apply_dbscan
+from src.feature_engineering import apply_pca
 
-from src.feature_engineering import (
-    apply_pca
+
+# ==========================================
+# PAGE CONFIG
+# ==========================================
+
+st.set_page_config(
+    page_title="Customer Segmentation",
+    page_icon="📊",
+    layout="wide"
 )
 
 # ==========================================
 # SIDEBAR
 # ==========================================
 
-st.sidebar.title(
-    "Navigation"
-)
+with st.sidebar:
 
-st.sidebar.info("""
+    st.title("📌 Navigation")
 
-Credit Card Customer Segmentation App
+    st.markdown("""
+### Credit Card Customer Segmentation
 
-Algorithms Used:
+### Algorithms
 - DBSCAN
 - PCA
-- Robust Scaling
+- RobustScaler
 
-Developed using:
+### Built Using
 - Streamlit
 - Scikit-learn
 - Python
 """)
-# ==========================================
-# PAGE CONFIG
-# ==========================================
 
-st.set_page_config(
-    page_title="Customer Segmentation App",
-    layout="wide"
-)
+    st.divider()
+
+    st.markdown("""
+### Workflow
+
+CSV Upload
+
+↓
+
+Preprocessing
+
+↓
+
+Feature Engineering
+
+↓
+
+PCA
+
+↓
+
+DBSCAN
+
+↓
+
+Business Insights
+""")
 
 # ==========================================
 # TITLE
 # ==========================================
 
 st.title(
-    "Credit Card Customer Segmentation"
+    "💳 Credit Card Customer Segmentation"
 )
+
 st.markdown("""
-This application performs customer segmentation using:
+This application performs **behavior-based customer segmentation**
+using **unsupervised machine learning**.
 
-- preprocessing
-- feature engineering
-- PCA
-- DBSCAN clustering
-
-The goal is to identify meaningful customer behavior groups from financial transaction patterns.
+Goal:
+identify meaningful financial behavior patterns.
 """)
-st.write(
-    """
-    Upload customer financial data to
-    perform behavioral segmentation
-    using DBSCAN clustering.
-    """
-)
+
+# ==========================================
+# MODEL SUMMARY
+# ==========================================
+
+with st.expander(
+    "Model Selection"
+):
+
+    st.markdown("""
+### Evaluation Summary
+
+| Algorithm | Silhouette | Davies-Bouldin |
+|---|---:|---:|
+| KMeans | 0.252 | 1.343 |
+| Hierarchical | 0.230 | 1.494 |
+| DBSCAN | 0.115 | **0.900** |
+
+### Selected Model:
+DBSCAN
+
+Reason:
+- better anomaly detection
+- lower cluster overlap
+- more realistic segmentation
+""")
 
 # ==========================================
 # FILE UPLOAD
 # ==========================================
 
 uploaded_file = st.file_uploader(
-    "Upload CSV File", type=['csv']
+    "Upload CSV",
+    type=["csv"]
 )
 
 # ==========================================
-# PROCESS FILE
+# PROCESS
 # ==========================================
 
-if uploaded_file is not None:
-    # Load data
+if uploaded_file:
+
     try:
+
         df = pd.read_csv(
             uploaded_file
         )
 
     except Exception as e:
-        st.error(
-            f"Error loading file: {e}"
-        )
+
+        st.error(e)
 
         st.stop()
-    st.subheader("Raw Dataset")
-    st.dataframe(df.head())
-    st.write(
-        f"Dataset Shape: {df.shape}"
+
+    st.divider()
+
+    st.subheader(
+        "Raw Dataset"
     )
-    
-    # ==========================================
-    # PREPROCESSING PIPELINE
-    # ==========================================
+
+    st.dataframe(
+        df.head()
+    )
+
+    c1, c2 = st.columns(2)
+
+    c1.metric(
+        "Rows",
+        df.shape[0]
+    )
+
+    c2.metric(
+        "Features",
+        df.shape[1]
+    )
+
+    # ======================================
+    # PIPELINE
+    # ======================================
 
     engineered_scaled, _, _ = (
         full_pipeline(df)
     )
 
     st.success(
-        "Preprocessing completed successfully!"
+        "Preprocessing completed."
     )
 
-    # ==========================================
-    # APPLY DBSCAN
-    # ==========================================
+    # ======================================
+    # DBSCAN
+    # ======================================
 
-    dbscan_model, labels = (
+    model, labels = (
         apply_dbscan(
             engineered_scaled,
             eps=2.0,
@@ -127,13 +187,13 @@ if uploaded_file is not None:
         )
     )
 
-    # Add clusters
     result_df = df.copy()
-    result_df['CLUSTER'] = labels
 
-    # ==========================================
-    # SHOW RESULTS
-    # ==========================================
+    result_df[
+        "CLUSTER"
+    ] = labels
+
+    st.divider()
 
     st.subheader(
         "Clustered Customers"
@@ -143,126 +203,167 @@ if uploaded_file is not None:
         result_df.head()
     )
 
-    # ==========================================
-    # CLUSTER DISTRIBUTION
-    # ==========================================
+    # ======================================
+    # DISTRIBUTION
+    # ======================================
 
     st.subheader(
         "Cluster Distribution"
     )
 
-    cluster_counts = (
-        result_df['CLUSTER'].value_counts().sort_index()
+    counts = (
+        result_df[
+            "CLUSTER"
+        ]
+        .value_counts()
+        .sort_index()
     )
 
-    # ==========================================
-    # CLUSTER DISTRIBUTION VISUALIZATION
-    # ==========================================
-
-    import matplotlib.pyplot as plt
-    import seaborn as sns
     fig, ax = plt.subplots(
         figsize=(10, 5)
     )
+
     sns.barplot(
-        x=cluster_counts.index,
-        y=cluster_counts.values,
+        x=counts.index,
+        y=counts.values,
         ax=ax
     )
-    ax.set_title(
-        "Customer Cluster Distribution"
-    )
-    ax.set_xlabel("Cluster")
-    ax.set_ylabel("Customer Count")
-    st.pyplot(fig)
 
-    # ==========================================
-    # DOWNLOAD RESULTS
-    # ==========================================
-
-    csv = result_df.to_csv(
-        index=False
+    ax.set_xlabel(
+        "Cluster"
     )
 
-    st.download_button(
-        label="Download Clustered Data",
-        data=csv,
-        file_name="clustered_customers.csv",
-        mime="text/csv"
+    ax.set_ylabel(
+        "Customers"
     )
 
-    # ==========================================
-    # CLUSTER PERCENTAGES
-    # ==========================================
-
-    cluster_percentage = round(
-        cluster_counts / cluster_counts.sum() * 100,        2
+    st.pyplot(
+        fig
     )
 
-    percentage_df = pd.DataFrame({
-        'Cluster': cluster_percentage.index,
-        'Percentage': cluster_percentage.values
-    })
+    # ======================================
+    # PERCENTAGES
+    # ======================================
 
     st.subheader(
         "Cluster Percentages"
     )
 
+    percentages = (
+        counts
+        /
+        counts.sum()
+        *
+        100
+    ).round(2)
+
     st.dataframe(
-        percentage_df
+        pd.DataFrame({
+
+            "Cluster":
+            percentages.index,
+
+            "Percentage":
+            percentages.values
+        })
     )
 
-    # ==========================================
-    # CLUSTER INTERPRETATION
-    # ==========================================
+    # ======================================
+    # PCA
+    # ======================================
 
     st.subheader(
-        "Business Interpretation"
+        "Customer Segments (PCA Projection)"
     )
 
-    st.markdown("""
-
-    - **Cluster 0:** Mainstream customers with stable financial behavior.
-
-    - **Cluster -1:** Anomalous or unusual customer behavior detected by DBSCAN.
-
-    - Smaller clusters represent niche customer segments with unique spending or payment patterns.
-
-    DBSCAN naturally identifies:
-    - dense customer populations
-    - anomalies
-    - rare customer behaviors
-
-    rather than forcing equal-sized clusters.
-    """)
-
-    # ==========================================
-    # PCA VISUALIZATION
-    # ==========================================
-
-    pca_df, _ = apply_pca(
-        engineered_scaled,
-        n_components=2
+    pca_df, pca = apply_pca(
+        engineered_scaled
     )
 
-    pca_df['Cluster'] = labels
+    variance = (
+        pca.explained_variance_ratio_
+        .sum()
+        *
+        100
+    )
+
+    pca_df[
+        "Cluster"
+    ] = labels
+
     fig, ax = plt.subplots(
         figsize=(10, 6)
     )
 
     sns.scatterplot(
         data=pca_df,
-        x='PC1',
-        y='PC2',
-        hue='Cluster',
-        palette='Set2',
-        s=40,
-        alpha=0.7,
-        ax=ax
+        x="PC1",
+        y="PC2",
+        hue="Cluster",
+        palette="Set2",
+        s=35,
+        alpha=0.7
     )
 
     ax.set_title(
-        "Customer Segments (PCA Projection)"
+
+        f"PCA Projection "
+
+        f"(Variance "
+
+        f"{variance:.2f}%)"
+
     )
 
-    st.pyplot(fig)
+    st.pyplot(
+        fig
+    )
+
+    # ======================================
+    # INTERPRETATION
+    # ======================================
+
+    st.subheader(
+        "Business Interpretation"
+    )
+
+    st.info("""
+
+Cluster 0:
+Regular customers with balanced behavior.
+
+Cluster -1:
+Anomalous customers detected by DBSCAN.
+
+Small clusters:
+Specialized customer groups with unique patterns.
+
+DBSCAN naturally detects
+behavioral irregularities.
+""")
+
+    # ======================================
+    # DOWNLOAD
+    # ======================================
+
+    st.download_button(
+
+        "Download Results",
+
+        result_df.to_csv(
+            index=False
+        ),
+
+        file_name=
+        "clustered_customers.csv"
+    )
+
+# ==========================================
+# FOOTER
+# ==========================================
+
+st.divider()
+
+st.caption(
+    "Built using Streamlit • Scikit-learn • Python"
+)

@@ -1,224 +1,292 @@
-# Credit Card Customer Segmentation using Unsupervised Machine Learning
+# 💳 Credit Card Customer Segmentation using Unsupervised Machine Learning
 
-## Project Overview
-
-This project focuses on customer segmentation using unsupervised machine learning techniques on credit card customer behavior data.
-
-The goal was to identify meaningful customer groups based on:
-
-* purchasing behavior
-* repayment patterns
-* cash advance usage
-* transaction activity
-* credit utilization
-
-The project was developed using a complete end-to-end machine learning workflow including:
-
-* Exploratory Data Analysis (EDA)
-* Data Preprocessing
-* Feature Engineering
-* PCA Dimensionality Reduction
-* Clustering Algorithms
-* Cluster Evaluation
-* Streamlit Deployment
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![ScikitLearn](https://img.shields.io/badge/Scikit--Learn-ML-orange)
+![Streamlit](https://img.shields.io/badge/Streamlit-Deployed-red)
+![Status](https://img.shields.io/badge/Status-Completed-green)
 
 ---
 
-# Problem Statement
+# 🌐 Live Demo
 
-Financial institutions handle large volumes of customer transaction data. However, understanding customer behavior manually is difficult.
+https://credit-card-customer-segmentation-ds.streamlit.app
+
+# 📂 GitHub Repository
+
+https://github.com/mdniyasvp/credit-card-customer-segmentation
+
+---
+
+# Project Overview
+
+This project builds an end-to-end **Customer Segmentation System** using **Unsupervised Machine Learning** to analyze credit card customer behavior.
+
+The objective is to identify meaningful customer groups based on:
+
+- purchasing behavior
+- repayment patterns
+- cash advance usage
+- credit utilization
+- transaction activity
+
+The solution includes:
+
+✔ Exploratory Data Analysis (EDA)  
+✔ Data Preprocessing  
+✔ Feature Engineering  
+✔ PCA Dimensionality Reduction  
+✔ Clustering Analysis  
+✔ Model Evaluation  
+✔ Streamlit Deployment  
+
+---
+
+# Business Problem
+
+Financial institutions generate large volumes of transaction data.
+
+Manually understanding customer behavior is difficult.
 
 This project aims to:
 
-* segment customers into meaningful groups
-* identify spending and repayment patterns
-* detect anomalous customer behavior
-* support personalized marketing and risk analysis
+- segment customers into behavioral groups
+- detect unusual financial activity
+- improve customer understanding
+- support personalized marketing
+- enable business-driven decision making
+
+---
+
+# Project Architecture
+
+```text
+Raw Customer Data
+        ↓
+Exploratory Data Analysis
+        ↓
+Data Preprocessing
+        ↓
+Feature Engineering
+        ↓
+Robust Scaling
+        ↓
+PCA
+        ↓
+DBSCAN Clustering
+        ↓
+Business Interpretation
+        ↓
+Streamlit Deployment
+```
 
 ---
 
 # Dataset Information
 
-Dataset: Credit Card Customer Dataset
+Dataset:
+Credit Card Customer Dataset
 
-Features include:
+Features:
 
-* balance
-* purchases
-* cash advance
-* payments
-* credit limit
-* transaction frequency
-* installment purchases
-* repayment behavior
-* tenure
+- BALANCE
+- PURCHASES
+- CASH_ADVANCE
+- PAYMENTS
+- CREDIT_LIMIT
+- PURCHASES_TRX
+- PAYMENT_FREQUENCY
+- INSTALLMENTS_PURCHASES
+- TENURE
 
 Target:
 
-* No target variable (unsupervised learning problem)
+No target variable  
+(Unsupervised Learning)
 
 ---
 
-# Project Workflow
-
-## 1. Exploratory Data Analysis (EDA)
+# Exploratory Data Analysis
 
 Performed:
 
-* missing value analysis
-* duplicate analysis
-* distribution analysis
-* skewness analysis
-* outlier detection
-* correlation heatmaps
-* PCA visualization
+- missing value analysis
+- duplicate analysis
+- skewness analysis
+- outlier analysis
+- correlation analysis
+- PCA visualization
 
 Key Findings:
 
-* financial features were highly skewed
-* extreme outliers were present
-* customer behavior varied significantly
+- financial variables were highly skewed
+- extreme outliers existed
+- behavioral variability was significant
 
 ---
 
-# 2. Data Preprocessing
+# Data Preprocessing
 
-Implemented inside:
+Implemented:
 
 ```text
 src/preprocessing.py
 ```
 
-Steps:
+Pipeline:
 
-* removed customer ID column
-* handled missing values using median imputation
-* removed duplicate rows
-* applied log transformation
-* clipped extreme outliers
-* applied RobustScaler
+- removed ID column
+- median imputation
+- duplicate removal
+- log transformation
+- outlier clipping
+- RobustScaler
 
 Why RobustScaler?
 
-* financial datasets naturally contain extreme outliers
+Financial data contains extreme outliers.
+
+RobustScaler scales using:
+
+```text
+Median + IQR
+```
+
+instead of:
+
+```text
+Mean + Standard Deviation
+```
 
 ---
 
-# 3. Feature Engineering
+# Feature Engineering
 
-Implemented inside:
+Implemented:
 
 ```text
 src/feature_engineering.py
 ```
 
-Created behavioral features such as:
+Created:
 
-* PAYMENT_RATIO
-* CREDIT_UTILIZATION
-* CASH_ADVANCE_RATIO
-* TRANSACTION_INTENSITY
+- PAYMENT_RATIO
+- CREDIT_UTILIZATION
+- CASH_ADVANCE_RATIO
+- TRANSACTION_INTENSITY
 
 Purpose:
 
-* improve customer behavior representation
-* enhance clustering quality
+Transform raw transactions into behavioral indicators.
 
 ---
 
-# 4. PCA (Principal Component Analysis)
+# PCA (Dimensionality Reduction)
 
 Used PCA for:
 
-* dimensionality reduction
-* visualization
-* variance compression
+- dimensionality reduction
+- noise reduction
+- visualization
 
 Benefits:
 
-* reduced feature redundancy
-* improved clustering visualization
+- reduced redundancy
+- improved visualization
 
 ---
 
-# 5. Clustering Algorithms Used
+# Clustering Algorithms
 
 ## KMeans
 
-* centroid-based clustering
-* fast and scalable
-* struggled with cluster imbalance
+- centroid-based
+- fast
+- struggled with cluster imbalance
+
+---
 
 ## Hierarchical Clustering
 
-* agglomerative clustering approach
-* useful for dendrogram analysis
-* produced similar imbalance issues
+- agglomerative clustering
+- dendrogram analysis
+
+---
 
 ## DBSCAN (Final Model)
 
-Selected as the final clustering model because it:
+Selected because:
 
-* handled outliers effectively
-* detected anomalies
-* supported irregular cluster shapes
-* produced more realistic customer behavior groups
-
----
-
-# Cluster Evaluation Metrics
-
-Used:
-
-* Silhouette Score
-* Davies-Bouldin Score
-* Cluster Distribution Analysis
-
-Important Insight:
-High silhouette scores alone were misleading because KMeans collapsed most customers into a single cluster.
-
-This project demonstrated the importance of:
-
-* visual validation
-* cluster balance
-* business interpretability
+- detects anomalies
+- handles outliers
+- supports irregular cluster shapes
+- creates business-relevant segmentation
 
 ---
 
-# Final Clustering Insights
+# Model Evaluation
 
-The project identified:
+| Model | Silhouette | Davies-Bouldin |
+|-------|-----------:|--------------:|
+| KMeans | 0.252 | 1.343 |
+| Hierarchical | 0.230 | 1.494 |
+| DBSCAN | 0.115 | **0.900** |
 
-* mainstream customer groups
-* high repayment customers
-* low activity customers
-* cash-advance dependent customers
-* anomalous customer behavior
+### Important Insight
 
-DBSCAN successfully detected:
+Higher Silhouette score alone was misleading.
 
-* dense customer populations
-* unusual financial behaviors
-* rare customer segments
+KMeans collapsed most customers into one cluster.
+
+DBSCAN produced more interpretable segmentation.
 
 ---
 
-# Streamlit Application
+# Final Insights
 
-A Streamlit application was developed to:
+Detected:
 
-* upload customer CSV data
-* run preprocessing pipeline
-* apply DBSCAN clustering
-* visualize clusters
-* download clustered results
+- mainstream customers
+- low activity customers
+- high repayment users
+- cash advance users
+- anomalous behavior
 
-Features:
+DBSCAN successfully identified:
 
-* cluster distribution visualization
-* PCA projection visualization
-* business interpretation section
-* downloadable clustered dataset
+- dense customer groups
+- niche segments
+- unusual financial patterns
+
+---
+
+# Application Screenshots
+
+## Streamlit Application
+
+![App](images/app.png)
+
+---
+
+## Cluster Distribution
+
+![Cluster](images/cluster_distribution.png)
+
+---
+
+## PCA Projection
+
+![PCA](images/pca_projection.png)
+
+---
+
+# Streamlit Features
+
+✔ Upload CSV  
+✔ Automatic preprocessing  
+✔ Customer segmentation  
+✔ Cluster visualization  
+✔ PCA projection  
+✔ Download results  
 
 ---
 
@@ -233,16 +301,9 @@ credit-card-customer-segmentation/
 ├── README.md
 │
 ├── data/
-│   ├── raw/
-│   └── processed/
-│
-├── models/
-│
 ├── notebooks/
-│   └── project_analysis.ipynb
-│
+├── models/
 ├── outputs/
-│   └── clusters/
 │
 └── src/
     ├── preprocessing.py
@@ -258,50 +319,44 @@ credit-card-customer-segmentation/
 
 # Technologies Used
 
-* Python
-* Pandas
-* NumPy
-* Matplotlib
-* Seaborn
-* Scikit-learn
-* Streamlit
-* Joblib
+- Python
+- Pandas
+- NumPy
+- Matplotlib
+- Seaborn
+- Scikit-learn
+- Streamlit
+- Joblib
 
 ---
 
-# How to Run the Project
+# Skills Demonstrated
 
-## 1. Clone Repository
+- EDA
+- Data Cleaning
+- Feature Engineering
+- PCA
+- Clustering
+- Model Evaluation
+- Deployment
+
+---
+
+# Installation
+
+Clone:
 
 ```bash
-git clone <your-repository-link>
+git clone https://github.com/mdniyasvp/credit-card-customer-segmentation.git
 ```
 
----
-
-## 2. Install Requirements
+Install:
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## 3. Run Jupyter Notebook
-
-```bash
-jupyter notebook
-```
-
-Open:
-
-```text
-notebooks/project_analysis.ipynb
-```
-
----
-
-## 4. Run Streamlit App
+Run:
 
 ```bash
 streamlit run app.py
@@ -309,65 +364,48 @@ streamlit run app.py
 
 ---
 
-# Results
-
-## Final Model
-
-DBSCAN Clustering
-
-## Key Achievements
-
-* realistic customer segmentation
-* anomaly detection
-* modular ML pipeline
-* business-focused insights
-* interactive Streamlit deployment
-
----
-
 # Future Improvements
 
 Possible enhancements:
 
-* automated hyperparameter tuning
-* advanced anomaly detection
-* cloud deployment
-* interactive dashboards
-* Gaussian Mixture Models (GMM)
-* deep clustering approaches
+- hyperparameter tuning
+- GMM clustering
+- advanced anomaly detection
+- cloud deployment
+- interactive dashboards
 
 ---
 
 # Author
 
-Niyas
+Muhammed Niyas V P
 
-Aspiring Data Scientist passionate about:
+Aspiring Data Scientist
 
-* Machine Learning
-* Data Analytics
-* Business Intelligence
-* AI Applications
+Interests:
+
+- Machine Learning
+- Analytics
+- AI Applications
+- Business Intelligence
 
 ---
 
-# Final Conclusion
+# Conclusion
 
-This project successfully developed an end-to-end unsupervised machine learning solution for customer segmentation using credit card transaction behavior.
+This project demonstrates an end-to-end unsupervised machine learning workflow for customer segmentation.
 
-The workflow combined:
+The final solution combines:
 
-* preprocessing
-* feature engineering
-* PCA
-* clustering analysis
-* business interpretation
+Preprocessing  
+→ Feature Engineering  
+→ PCA  
+→ DBSCAN  
+→ Business Insights  
 
-to generate meaningful customer insights that can support:
+to support:
 
-* marketing personalization
-* customer retention
-* financial risk monitoring
-* anomaly detection
-
-DBSCAN ultimately proved to be the most effective clustering method for this financial dataset due to its ability to handle outliers and irregular customer behavior patterns.
+- personalized marketing
+- customer retention
+- anomaly detection
+- financial analytics
